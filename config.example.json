@@ -1,0 +1,25 @@
+{
+    "reload_from_database": false,
+    "neo4j_uri": "bolt://localhost:7687",
+    "neo4j_user": "neo4j",
+    "neo4j_password": "password",
+    "databases": [
+        {   
+            "name": "database1",
+            "database_root": "backup",
+            "host": "localhost",
+            "port": "5432",
+            "dbname": "database1",
+            "user": "postgres",
+            "password": ""
+        },
+        {
+            "name": "database2",
+            "database_root": "backup",
+            "host": "localhost",
+            "port": "5432",
+            "dbname": "database2",
+            "user": "postgres",
+            "password": ""
+        }]
+}
