@@ -1,5 +1,6 @@
 {
-    "reload_from_database": false,
+    "reload_from_database": true,
+    "redact_emails": true,
     "neo4j_uri": "bolt://localhost:7687",
     "neo4j_user": "neo4j",
     "neo4j_password": "password",
@@ -11,7 +12,7 @@
             "port": "5432",
             "dbname": "database1",
             "user": "postgres",
-            "password": ""
+            "password": "database1_password"
         },
         {
             "name": "database2",
@@ -20,6 +21,6 @@
             "port": "5432",
             "dbname": "database2",
             "user": "postgres",
-            "password": ""
+            "password": "database2_password"
         }]
 }
