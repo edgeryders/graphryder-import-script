@@ -15,7 +15,7 @@ from pprint import pprint
 # apoc.import.file.use_neo4j_config=false
 
 mylogs = logging.getLogger(__name__)
-mylogs.setLevel(logging.INFO)
+mylogs.setLevel(logging.DEBUG)
 
 file = logging.FileHandler("ryderex-import.log")
 file.setLevel(logging.INFO)
@@ -23,7 +23,7 @@ fileformat = logging.Formatter("%(asctime)s:%(levelname)s: %(message)s",datefmt=
 file.setFormatter(fileformat)
 
 stream = logging.StreamHandler()
-stream.setLevel(logging.INFO)
+stream.setLevel(logging.DEBUG)
 streamformat = logging.Formatter("%(asctime)s: %(message)s")
 stream.setFormatter(streamformat)
 
@@ -805,7 +805,7 @@ def graph_create_platform(data):
         with driver.session() as session:
             try:
                 session.write_transaction(tx_create_platform, platform['site']['name'])
-                mylogs.info(f'Loaded platform data from {platform["site"]["name"]}')
+                mylogs.debug(f'Loaded platform data from {platform["site"]["name"]}')
             except Exception as e:
                 mylogs.error(f'Import failed for platform data on {platform["site"]["name"]}')
                 mylogs.error(e)
@@ -846,7 +846,7 @@ def graph_create_groups(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_groups, str(chunk), platform_name)
-                    mylogs.info(f'Loaded group data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded group data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for groups on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -916,7 +916,7 @@ def graph_create_users(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_users, chunk, platform_name)
-                    mylogs.info(f'Loaded user data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded user data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for users on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -960,7 +960,7 @@ def graph_create_tags(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_tags, chunk, platform_name)
-                    mylogs.info(f'Loaded tag data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded tag data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for tag on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -1017,7 +1017,7 @@ def graph_create_categories(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_categories, chunk, platform_name)
-                    mylogs.info(f'Loaded category data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded category data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for categories on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -1073,7 +1073,7 @@ def graph_create_topics(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_topics, chunk, platform_name)
-                    mylogs.info(f'Loaded topic data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded topic data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for topic on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -1142,7 +1142,7 @@ def graph_create_posts(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_posts, chunk, platform_name)
-                    mylogs.info(f'Loaded post data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded post data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for posts on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -1169,7 +1169,7 @@ def graph_create_replies(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_replies, chunk, platform_name)
-                    mylogs.info(f'Loaded reply data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded reply data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.info(f'Import failed for replies on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -1196,7 +1196,7 @@ def graph_create_quotes(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_quotes, chunk, platform_name)
-                    mylogs.info(f'Loaded quote data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded quote data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import quote for reply on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -1314,7 +1314,7 @@ def graph_create_likes(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_likes, chunk, platform_name)
-                    mylogs.info(f'Loaded likes data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded likes data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import likes for reply on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -1356,7 +1356,7 @@ def graph_create_languages(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_create_languages, chunk, platform_name)
-                    mylogs.info(f'Loaded language data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded language data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import for language on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -1404,7 +1404,7 @@ def graph_create_codes(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_codes, chunk, platform_name)
-                    mylogs.info(f'Loaded code data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded code data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import for codes on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -1425,7 +1425,7 @@ def graph_create_code_ancestry(data):
             platform_name = platform['site']['name']
             try:
                 session.write_transaction(tx_create_code_ancestry, platform_name)
-                mylogs.info(f'Loaded code ancestry from {platform_name}')
+                mylogs.debug(f'Loaded code ancestry from {platform_name}')
             except Exception as e:
                 mylogs.error(f'Import failed for code ancestry on {platform_name}')
                 mylogs.error(e)
@@ -1465,7 +1465,7 @@ def graph_create_code_names(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_code_names, chunk, platform_name)
-                    mylogs.info(f'Loaded code name data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded code name data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import for code name on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -1506,7 +1506,7 @@ def graph_create_annotations(data):
             for chunk in range(1, chunks + 1):
                 try:
                     session.write_transaction(tx_create_annotations, chunk, platform_name)
-                    mylogs.info(f'Loaded annotations data from {platform_name}, chunk #{chunk}')
+                    mylogs.debug(f'Loaded annotations data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for annotations on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
@@ -1612,8 +1612,6 @@ def graph_create_code_use():
 # Add post permissions with HAS_ACCESS to groups to enable granular graph access
 
 def main():
-    logging.basicConfig(filename='ryderex-import.log', level=logging.INFO)
-
     databases = config['databases']
 
     # Load data from Discourse psql databases and dump to json files
