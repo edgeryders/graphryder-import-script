@@ -37,7 +37,7 @@ uri = config['neo4j_uri']
 driver = GraphDatabase.driver(uri, auth=(config['neo4j_user'], config['neo4j_password']))
 data_path = os.path.abspath('./db/')
 
-def get_data(db_cursor, db_name, db_root, salt):
+def get_data(db_cursor, db_name, db_root, salt, ensure_consent):
     # This function gets the data we need from the Discourse psql database.
     # It assumes that the database is built from backup dumps. 
     # If running on the live database, 'backup' in the database names should be changed.
@@ -130,7 +130,10 @@ def get_data(db_cursor, db_name, db_root, salt):
     consent_data = db_cursor.fetchall()
     for user in consent_data:
         uid = user[0]
-        users[uid]['consent'] = user[1]
+        if user[1] == '1':
+            users[uid]['consent'] = 1
+        else:
+            users[uid]['consent'] = 0
         users[uid]['consent_updated'] = user[2]
 
     db_cursor.execute(group_members_query)
@@ -262,9 +265,19 @@ def get_data(db_cursor, db_name, db_root, salt):
         tid = topic[0]
         cid = topic[5] if topic[5] in categories.keys() else None
         read_restricted = True if tid in pm_topic_set or not cid else categories[cid]['read_restricted']
+        if topic[4] in users.keys() and users[topic[4]]['consent'] == 1:
+            consenting = True
+        else:
+            consenting = False
+        if consenting and tid in pm_topic_set:
+            title = 'Private message'
+        if not consenting and ensure_consent:
+            title = "Title withdrawn (no user consent)"
+        else:
+            title = topic[1]
         topics[tid] = {
             'id': tid,
-            'title': 'Private message' if tid in pm_topic_set else topic[1],
+            'title': title,
             'created_at': topic[2],
             'updated_at': topic[3],
             'user_id': -100 if tid in pm_topic_set or topic[4] not in users.keys() else topic[4],
@@ -327,12 +340,27 @@ def get_data(db_cursor, db_name, db_root, salt):
             pm_post_set.add(pid)
             private_count += 1
         deleted = post[7]
+
+        if post[1] in users.keys() and users[post[1]]['consent'] == 1:
+            consenting = True
+        else:
+            consenting = False
+
+        if consenting and deleted:
+            raw = 'Removed content (deleted)'
+        if consenting and private:
+            raw = 'Removed content (private message)'
+        if not consenting and ensure_consent:
+            raw = "Content withdrawn (no user consent)"
+        else:
+            raw = post[4]
+
         posts[pid] = {
             'id': pid,
             'user_id': -100 if private or deleted or post[1] not in users.keys() else post[1],
             'topic_id': tid,
             'post_number': post[3],
-            'raw': 'Removed content' if private or deleted else post[4],
+            'raw': raw,
             'created_at': post[5],
             'updated_at': post[6],
             'deleted_at': post[7],
@@ -348,7 +376,8 @@ def get_data(db_cursor, db_name, db_root, salt):
             'quotes_posts': [],
             'is_reply_to': [],
             'is_liked_by': [],
-            'is_private': private
+            'is_private': private,
+            'consent': consenting
         }
 
     quotes = {}
@@ -468,18 +497,25 @@ def get_data(db_cursor, db_name, db_root, salt):
     db_cursor.execute(annotations_query)
     annotations_data = db_cursor.fetchall()
     for annotation in annotations_data:
-        aid = annotation[0]
-        annotations[aid] = {
-            'id': aid,
-            'text': annotation[1], 
-            'quote': annotation[2], 
-            'created_at': annotation[3],
-            'updated_at': annotation[4], 
-            'tag_id': annotation[5],
-            'post_id': annotation[6], 
-            'creator_id': annotation[7], 
-            'type': annotation[8],
-            'topic_id': annotation[9] 
+        if not ensure_consent:
+            include = True
+        elif annotation[6] in posts.keys() and posts[annotation[6]]['consent'] == True:
+            include = True
+        else:
+            include = False
+        if include:
+            aid = annotation[0]
+            annotations[aid] = {
+                'id': aid,
+                'text': annotation[1], 
+                'quote': annotation[2], 
+                'created_at': annotation[3],
+                'updated_at': annotation[4], 
+                'tag_id': annotation[5],
+                'post_id': annotation[6], 
+                'creator_id': annotation[7], 
+                'type': annotation[8],
+                'topic_id': annotation[9] 
         }
 
     mylogs.info(f'    Got {len(list(annotations.keys()))} annotations.')
@@ -660,14 +696,14 @@ def reload_data(dbs):
             port=db['port'], 
             dbname=db['dbname'], 
             user=db['user'], 
-            password=db['password']
+            password=db['password'],
         )
 
         # Open a cursor to perform database operations
         db_cursor = db_conn.cursor()
 
         # Get data
-        d = get_data(db_cursor, db['name'], db['database_root'], salt)
+        d = get_data(db_cursor, db['name'], db['database_root'], salt, db['ensure_consent'] == 'true')
         data[db['name']] = d
         stats = d['stats']
         stats['chunk_sizes'] = {}

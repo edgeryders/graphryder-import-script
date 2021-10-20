@@ -7,6 +7,7 @@
     "databases": [
         {   
             "name": "database1",
+            "ensure_consent": "true",
             "database_root": "backup",
             "host": "localhost",
             "port": "5432",
@@ -16,6 +17,7 @@
         },
         {
             "name": "database2",
+            "ensure_consent": "false",
             "database_root": "backup",
             "host": "localhost",
             "port": "5432",
