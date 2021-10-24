@@ -38,7 +38,7 @@ uri = config['neo4j_uri']
 driver = GraphDatabase.driver(uri, auth=(config['neo4j_user'], config['neo4j_password']))
 data_path = os.path.abspath('./db/')
 
-def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_policy, pseudonymize_users):
+def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_policy, pseudonymize_users, omit_codes_prefix):
     # This function gets the data we need from the Discourse psql database.
     # It assumes that the database is built from backup dumps. 
     # If running on the live database, 'backup' in the database names should be changed.
@@ -550,118 +550,129 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
     # This omits content created by system users and by deleted users.
     # It also omits those users completely from the graph.
 
-    omit = True if omit_private_messages or omit_protected_content or redact_protected_content or pseudonymize_users or omit_system_users else False
-
-    if omit:
-
-        new = dict(users)
-        pseudonyms = []
-        gib = Gibberish()
+    new = dict(users)
+    pseudonyms = []
+    gib = Gibberish()
+    if pseudonymize_users:
+        pseudonym_list = gib.generate_words(max(users.keys()) + 1)
+    for u, d in users.items():
+        if omit_system_users and d['id'] < 0:
+            del(new[u])
+            continue
         if pseudonymize_users:
-            pseudonym_list = gib.generate_words(max(users.keys()) + 1)
-        for u, d in users.items():
-            if omit_system_users and d['id'] < 0:
-                del(new[u])
-                continue
-            if pseudonymize_users:
-                name = pseudonym_list[u]
-                while name in pseudonyms:
-                    name = name + '_' + random.choice(pseudonym_list)
-                pseudonyms.append(name)
-                new[u]['username'] = name
-        users = new
+            name = pseudonym_list[u]
+            while name in pseudonyms:
+                name = name + '_' + random.choice(pseudonym_list)
+            pseudonyms.append(name)
+            new[u]['username'] = name
+    users = new
 
-        new = dict(groups)
-        # Group visibility levels, public=0, logged_on_users=1, members=2, staff=3, owners=4
-        for g, d in groups.items():
-            if redact_protected_content and d['visibility_level'] > 1:
-                new[g]['name'] = '[Redacted]'
-                continue
-            if omit_protected_content and d['visibility_level'] > 1:
-                del(new[g])
-                continue
-        groups = new
+    new = dict(groups)
+    # Group visibility levels, public=0, logged_on_users=1, members=2, staff=3, owners=4
+    for g, d in groups.items():
+        if redact_protected_content and d['visibility_level'] > 1:
+            new[g]['name'] = '[Redacted]'
+            continue
+        if omit_protected_content and d['visibility_level'] > 1:
+            del(new[g])
+            continue
+    groups = new
 
-        new = dict(categories)
-        for c, d in categories.items():
-            if redact_protected_content and d['read_restricted']:
-                new[c]['name'] = '[Redacted]'
-                new[c]['name'] = '[Redacted]'
-                continue
-            if omit_protected_content and d['read_restricted']:
-                del(new[c])
-                continue
-            for group in d['permissions']:
-                if group not in groups.keys():
-                    new[c]['permissions'].remove(group)
-        categories = new
+    new = dict(categories)
+    for c, d in categories.items():
+        if redact_protected_content and d['read_restricted']:
+            new[c]['name'] = '[Redacted]'
+            new[c]['name'] = '[Redacted]'
+            continue
+        if omit_protected_content and d['read_restricted']:
+            del(new[c])
+            continue
+        for group in d['permissions']:
+            if group not in groups.keys():
+                new[c]['permissions'].remove(group)
+    categories = new
 
-        new = dict(topics)
-        for t, d in topics.items():
-            if omit_private_messages and t in pm_topic_set:
-                del(new[t])
-                continue
-            if redact_protected_content and d['read_restricted']:
-                new[t]['title'] = '[Redacted]'
-                continue
-            if omit_protected_content and d['read_restricted']:
-                del(new[t])
-                continue
-        topics = new
+    new = dict(topics)
+    for t, d in topics.items():
+        if omit_private_messages and t in pm_topic_set:
+            del(new[t])
+            continue
+        if redact_protected_content and d['read_restricted']:
+            new[t]['title'] = '[Redacted]'
+            continue
+        if omit_protected_content and d['read_restricted']:
+            del(new[t])
+            continue
+    topics = new
 
-        new = dict(posts)
-        for p, d in posts.items():
-            if omit_private_messages and p in pm_post_set:
-                del(new[p])
-                continue
-            if omit_protected_content and d['hidden']:
-                del(new[p])
-                continue
-            if redact_protected_content and d['read_restricted']:
-                new[p]['raw'] = '[Redacted]'
-            if omit_protected_content and (d['read_restricted'] or d['hidden']):
-                del(new[p])
-                continue
-        posts = new
+    new = dict(posts)
+    for p, d in posts.items():
+        if omit_private_messages and p in pm_post_set:
+            del(new[p])
+            continue
+        if omit_protected_content and d['hidden']:
+            del(new[p])
+            continue
+        if redact_protected_content and d['read_restricted']:
+            new[p]['raw'] = '[Redacted]'
+        if omit_protected_content and (d['read_restricted'] or d['hidden']):
+            del(new[p])
+            continue
+    posts = new
 
-        new = dict(quotes)
-        for q, d in quotes.items():
-            if omit_private_messages and (d['quoted_post_id'] in pm_post_set or d['post_id'] in pm_post_set):
-                del(new[q])
-                continue
-            if omit_protected_content and (d['quoted_post_id'] in pm_post_set or d['post_id'] not in posts.keys()):
-                del(new[q])
-                continue
-        quotes = new
-        
-        new = dict(likes)
-        for l, d in likes.items():
-            if omit_private_messages and d['post_id'] in pm_post_set:
-                del(new[l])
-                continue
-            if omit_protected_content and d['post_id'] not in posts.keys():
-                del(new[l])
-                continue
-        likes = new
+    new = dict(quotes)
+    for q, d in quotes.items():
+        if omit_private_messages and (d['quoted_post_id'] in pm_post_set or d['post_id'] in pm_post_set):
+            del(new[q])
+            continue
+        if omit_protected_content and (d['quoted_post_id'] in pm_post_set or d['post_id'] not in posts.keys()):
+            del(new[q])
+            continue
+    quotes = new
+    
+    new = dict(likes)
+    for l, d in likes.items():
+        if omit_private_messages and d['post_id'] in pm_post_set:
+            del(new[l])
+            continue
+        if omit_protected_content and d['post_id'] not in posts.keys():
+            del(new[l])
+            continue
+    likes = new
 
-        new = dict(annotations)
-        for a, d in annotations.items():
-            if omit_private_messages and d['post_id'] in pm_post_set:
-                del(new[a])
-                continue
-            if redact_protected_content and d['post_id'] not in posts.keys():
-                new[a]['quote'] = '[Redacted]' 
-            if omit_protected_content and d['post_id'] not in posts.keys():
-                del(new[a])
-                continue
-        annotations = new
+    new = dict(annotator_code_names)
+    omitted = set()
+    for a, d in annotator_code_names.items():
+        if omit_codes_prefix:
+            for prefix in omit_codes_prefix:
+                if d['name'].startswith(prefix):
+                    omitted.add(d['tag_id'])
+                    if d['tag_id'] in annotator_codes.keys():
+                        del[annotator_codes[d['tag_id']]]
+                    del[new[a]]
+                    continue
 
-        if omit_private_messages:
-            mylogs.info('Omitted private messages.')
-        if omit_protected_content:
-            mylogs.info('Omitted protected content.')
-        if omit_system_users:
-            mylogs.info('Omitted system users and content.')
+    new = dict(annotations)
+    for a, d in annotations.items():
+        if d['tag_id'] in omitted:
+            del(new[a])
+            continue
+        if omit_private_messages and d['post_id'] in pm_post_set:
+            del(new[a])
+            continue
+        if redact_protected_content and d['post_id'] not in posts.keys():
+            new[a]['quote'] = '[Redacted]' 
+        if omit_protected_content and d['post_id'] not in posts.keys():
+            del(new[a])
+            continue
+    annotations = new
+
+    if omit_private_messages:
+        mylogs.info('Omitted private messages.')
+    if omit_protected_content:
+        mylogs.info('Omitted protected content.')
+    if omit_system_users:
+        mylogs.info('Omitted system users and content.')
     
     stats = {
         'omit_pm': omit_private_messages,
@@ -740,7 +751,8 @@ def reload_data(dbs):
                     db['database_root'], 
                     salt, db['ensure_consent'] == 'true', 
                     db['protected_topic_policy'], 
-                    db['pseudonymize_users'] == 'true'
+                    db['pseudonymize_users'] == 'true',
+                    db['omit_codes_prefix']
                     ) 
         data[db['name']] = d
         stats = d['stats']
