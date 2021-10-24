@@ -1280,7 +1280,7 @@ def graph_create_quotes(data):
 def graph_create_interactions():
     # Add interactions
 
-    def tx_create_user_talks(tx):
+    def tx_create_global_user_talks(tx):
         tx.run(
             f'MATCH (g1:globaluser)<-[:IS_GLOBAL_USER]-()-[:CREATED]->()-[r:IS_REPLY_TO]-()<-[:CREATED]-()-[:IS_GLOBAL_USER]->(g2:globaluser) '
             f'WITH g1, g2, count(r) AS c '
@@ -1288,7 +1288,7 @@ def graph_create_interactions():
             f'SET gr.count = c '
         )
 
-    def tx_create_global_user_talks(tx):
+    def tx_create_user_talks(tx):
         tx.run(
             f'MATCH (u1:user)-[:CREATED]->()-[r:IS_REPLY_TO]-()<-[:CREATED]-(u2:user) '
             f'WITH u1, u2, count(r) AS c '
@@ -1296,7 +1296,7 @@ def graph_create_interactions():
             f'SET ur.count = c '
         )
 
-    def tx_create_user_quotes(tx):
+    def tx_create_global_user_quotes(tx):
         tx.run(
             f'MATCH (g1:globaluser)<-[:IS_GLOBAL_USER]-()-[:CREATED]->()-[r:CONTAINS_QUOTE_FROM]->()<-[:CREATED]-()-[:IS_GLOBAL_USER]->(g2:globaluser) '
             f'WITH g1, g2, count(r) AS c '
@@ -1304,7 +1304,7 @@ def graph_create_interactions():
             f'SET gr.count = c '
         )
 
-    def tx_create_global_user_quotes(tx):
+    def tx_create_user_quotes(tx):
         tx.run(
             f'MATCH (u1:user)-[:CREATED]->()-[r:CONTAINS_QUOTE_FROM]->()<-[:CREATED]-(u2:user) '
             f'WITH u1, u2, count(r) AS c '
@@ -1312,18 +1312,18 @@ def graph_create_interactions():
             f'SET ur.count = c '
         )
 
-    def tx_create_user_talks_and_quotes(tx):
+    def tx_create_global_user_talks_and_quotes(tx):
         tx.run(
-            f'MATCH (g1:globaluser)<-[:IS_GLOBAL_USER]-()-[:CREATED]->()-[r:IS_REPLY_TO|CONTAINS_QUOTE_FROM]-()<-[:CREATED]-()-[:IS_GLOBAL_USER]->(g2:globaluser) '
-            f'WITH g1, g2, count(r) AS c '
+            f'MATCH (g1:globaluser)<-[:IS_GLOBAL_USER]-()-[:CREATED]->(p)-[r:IS_REPLY_TO|CONTAINS_QUOTE_FROM]-()<-[:CREATED]-()-[:IS_GLOBAL_USER]->(g2:globaluser) '
+            f'WITH g1, g2, count(DISTINCT p) AS c '
             f'MERGE (g1)-[gr:TALKED_OR_QUOTED]-(g2) '
             f'SET gr.count = c '
         )
 
-    def tx_create_global_user_talks_and_quotes(tx):
+    def tx_create_user_talks_and_quotes(tx):
         tx.run(
-            f'MATCH (u1:user)-[:CREATED]->()-[r:IS_REPLY_TO|CONTAINS_QUOTE_FROM]-()<-[:CREATED]-(u2:user) '
-            f'WITH u1, u2, count(r) AS c '
+            f'MATCH (u1:user)-[:CREATED]->(p)-[r:IS_REPLY_TO|CONTAINS_QUOTE_FROM]-()<-[:CREATED]-(u2:user) '
+            f'WITH u1, u2, count(DISTINCT p) AS c '
             f'MERGE (u1)-[ur:TALKED_OR_QUOTED]-(u2) '
             f'SET ur.count = c '
         )
