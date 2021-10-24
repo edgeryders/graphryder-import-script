@@ -1,12 +1,13 @@
 import psycopg2
 import logging
-import time
 import json
 import hashlib
+import random
 import os
 from sys import exit
 from neo4j import GraphDatabase
 from pprint import pprint
+from gibberish import Gibberish
 
 # Python version 3.8.6
 # For this script to work, neo4j must have APOC installed and the neo4j.conf file 
@@ -37,7 +38,7 @@ uri = config['neo4j_uri']
 driver = GraphDatabase.driver(uri, auth=(config['neo4j_user'], config['neo4j_password']))
 data_path = os.path.abspath('./db/')
 
-def get_data(db_cursor, db_name, db_root, salt, ensure_consent):
+def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_policy, pseudonymize_users):
     # This function gets the data we need from the Discourse psql database.
     # It assumes that the database is built from backup dumps. 
     # If running on the live database, 'backup' in the database names should be changed.
@@ -529,7 +530,16 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent):
     omit_private_messages = True
     # Omit private messages from the graph
 
-    omit_protected_content = True
+    if protected_topic_policy == 'omit':
+        omit_protected_content = True
+    else:
+        omit_protected_content = False
+    
+    if protected_topic_policy == 'redact':
+        redact_protected_content = True
+    else: 
+        redact_protected_content = False
+
     # Omit protected content (posts, categories, groups) from the graph.
     # Content that is not readable by all logged in users is considered protected.
     # This also omits 'hidden' posts, also known as 'whispers'.
@@ -540,20 +550,33 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent):
     # This omits content created by system users and by deleted users.
     # It also omits those users completely from the graph.
 
-    omit = True if omit_private_messages or omit_protected_content or omit_system_users else False
+    omit = True if omit_private_messages or omit_protected_content or redact_protected_content or pseudonymize_users or omit_system_users else False
 
     if omit:
 
         new = dict(users)
+        pseudonyms = []
+        gib = Gibberish()
+        if pseudonymize_users:
+            pseudonym_list = gib.generate_words(max(users.keys()) + 1)
         for u, d in users.items():
             if omit_system_users and d['id'] < 0:
                 del(new[u])
                 continue
+            if pseudonymize_users:
+                name = pseudonym_list[u]
+                while name in pseudonyms:
+                    name = name + '_' + random.choice(pseudonym_list)
+                pseudonyms.append(name)
+                new[u]['username'] = name
         users = new
 
         new = dict(groups)
         # Group visibility levels, public=0, logged_on_users=1, members=2, staff=3, owners=4
         for g, d in groups.items():
+            if redact_protected_content and d['visibility_level'] > 1:
+                new[g]['name'] = '[Redacted]'
+                continue
             if omit_protected_content and d['visibility_level'] > 1:
                 del(new[g])
                 continue
@@ -561,6 +584,10 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent):
 
         new = dict(categories)
         for c, d in categories.items():
+            if redact_protected_content and d['read_restricted']:
+                new[c]['name'] = '[Redacted]'
+                new[c]['name'] = '[Redacted]'
+                continue
             if omit_protected_content and d['read_restricted']:
                 del(new[c])
                 continue
@@ -574,6 +601,9 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent):
             if omit_private_messages and t in pm_topic_set:
                 del(new[t])
                 continue
+            if redact_protected_content and d['read_restricted']:
+                new[t]['title'] = '[Redacted]'
+                continue
             if omit_protected_content and d['read_restricted']:
                 del(new[t])
                 continue
@@ -584,6 +614,11 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent):
             if omit_private_messages and p in pm_post_set:
                 del(new[p])
                 continue
+            if omit_protected_content and d['hidden']:
+                del(new[p])
+                continue
+            if redact_protected_content and d['read_restricted']:
+                new[p]['raw'] = '[Redacted]'
             if omit_protected_content and (d['read_restricted'] or d['hidden']):
                 del(new[p])
                 continue
@@ -614,6 +649,8 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent):
             if omit_private_messages and d['post_id'] in pm_post_set:
                 del(new[a])
                 continue
+            if redact_protected_content and d['post_id'] not in posts.keys():
+                new[a]['quote'] = '[Redacted]' 
             if omit_protected_content and d['post_id'] not in posts.keys():
                 del(new[a])
                 continue
@@ -625,12 +662,6 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent):
             mylogs.info('Omitted protected content.')
         if omit_system_users:
             mylogs.info('Omitted system users and content.')
-
-    if omit_protected_content:
-        pass
-
-    if omit_system_users:
-        pass
     
     stats = {
         'omit_pm': omit_private_messages,
@@ -703,7 +734,14 @@ def reload_data(dbs):
         db_cursor = db_conn.cursor()
 
         # Get data
-        d = get_data(db_cursor, db['name'], db['database_root'], salt, db['ensure_consent'] == 'true')
+        d = get_data(
+                    db_cursor, 
+                    db['name'], 
+                    db['database_root'], 
+                    salt, db['ensure_consent'] == 'true', 
+                    db['protected_topic_policy'], 
+                    db['pseudonymize_users'] == 'true'
+                    ) 
         data[db['name']] = d
         stats = d['stats']
         stats['chunk_sizes'] = {}
