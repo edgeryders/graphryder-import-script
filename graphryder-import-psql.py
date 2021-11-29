@@ -4,9 +4,8 @@ import json
 import hashlib
 import random
 import os
-from sys import exit
 from neo4j import GraphDatabase
-from pprint import pprint
+import numpy as np
 from gibberish import Gibberish
 
 # Python version 3.8.6
@@ -37,6 +36,17 @@ with open("./config.json") as json_config:
 uri = config['neo4j_uri']
 driver = GraphDatabase.driver(uri, auth=(config['neo4j_user'], config['neo4j_password']))
 data_path = os.path.abspath('./db/')
+
+# Save data in chunks of size n
+def dumpSplit(data_topic, data_set, data, stats):
+    path = './db/'
+    n = 1000
+    data_chunks = [data[i * n:(i + 1) * n] for i in range((len(data) + n - 1) // n )]
+    for num, item in enumerate(data_chunks):
+        with open(f'{path}{data_set}_{data_topic}_{str(num+1)}.json', 'w') as file:
+            json.dump(item, file, default=str)
+    stats['chunk_sizes'][data_topic] = len(data_chunks)
+    return stats
 
 def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_policy, pseudonymize_users, omit_codes_prefix):
     # This function gets the data we need from the Discourse psql database.
@@ -762,31 +772,19 @@ def reload_data(dbs):
         with open(f'./db/{db["name"]}_site.json', 'w') as file:
             json.dump(d['site'], file, default=str)
 
-        # Save data in chunks of size n
-        def dumpSplit(data_topic, data_set, stats):
-            path = './db/'
-            n = 1000
-            data_list = list(d[data_topic].values())
-            data_chunks = [data_list[i * n:(i + 1) * n] for i in range((len(data_list) + n - 1) // n )]
-            for num, item in enumerate(data_chunks):
-                with open(f'{path}{data_set}_{data_topic}_{str(num+1)}.json', 'w') as file:
-                    json.dump(item, file, default=str)
-            stats['chunk_sizes'][data_topic] = len(data_chunks)
-            return stats
-
-        stats = dumpSplit('users', db['name'], stats)
-        stats = dumpSplit('groups', db['name'], stats)
-        stats = dumpSplit('tags', db['name'], stats)
-        stats = dumpSplit('categories', db['name'], stats)
-        stats = dumpSplit('topics', db['name'], stats)
-        stats = dumpSplit('posts', db['name'], stats)
-        stats = dumpSplit('replies', db['name'], stats)
-        stats = dumpSplit('quotes', db['name'], stats)
-        stats = dumpSplit('likes', db['name'], stats)
-        stats = dumpSplit('languages', db['name'], stats)
-        stats = dumpSplit('codes', db['name'], stats)
-        stats = dumpSplit('code_names', db['name'], stats)
-        stats = dumpSplit('annotations', db['name'], stats)
+        stats = dumpSplit('users', db['name'], list(d['users'].values()), stats)
+        stats = dumpSplit('groups', db['name'], list(d['groups'].values()), stats)
+        stats = dumpSplit('tags', db['name'], list(d['tags'].values()), stats)
+        stats = dumpSplit('categories', db['name'], list(d['categories'].values()), stats)
+        stats = dumpSplit('topics', db['name'], list(d['topics'].values()), stats)
+        stats = dumpSplit('posts', db['name'], list(d['posts'].values()), stats)
+        stats = dumpSplit('replies', db['name'], list(d['replies'].values()), stats)
+        stats = dumpSplit('quotes', db['name'], list(d['quotes'].values()), stats)
+        stats = dumpSplit('likes', db['name'], list(d['likes'].values()), stats)
+        stats = dumpSplit('languages', db['name'], list(d['languages'].values()), stats)
+        stats = dumpSplit('codes', db['name'], list(d['codes'].values()), stats)
+        stats = dumpSplit('code_names', db['name'], list(d['code_names'].values()), stats)
+        stats = dumpSplit('annotations', db['name'],list(d['annotations'].values()),  stats)
 
         # Add chunk sizes to stats last
         with open(f'./db/{db["name"]}_stats.json', 'w') as file:
@@ -1660,7 +1658,7 @@ def graph_create_code_cooccurrences():
             f'MATCH (corpus:corpus)<-[:TAGGED_WITH]-()<-[:IN_TOPIC]-(p:post)<-[:ANNOTATES]-()-[:REFERS_TO]->(code1:code)-[:HAS_CODENAME]->(cn1:codename)-[:IN_LANGUAGE]->(l:language {{locale: "en"}}) '
             f'MATCH (corpus:corpus)<-[:TAGGED_WITH]-()<-[:IN_TOPIC]-(p:post)<-[:ANNOTATES]-()-[:REFERS_TO]->(code2:code)-[:HAS_CODENAME]->(cn2:codename)-[:IN_LANGUAGE]->(l:language {{locale: "en"}}) WHERE NOT ID(code1) = ID(code2) '
             f'WITH code1, code2, cn1, cn2, corpus, count(DISTINCT p) AS cooccurs '
-            f'MERGE (code1)-[r:COOCCURS {{count: cooccurs, corpus: corpus.name}}]-(code2) '
+            f'MERGE (code1)-[r:COOCCURS {{method: "count", count: cooccurs, corpus: corpus.name}}]-(code2) '
             f'RETURN corpus.name, cn1.name, cn2.name, r.count ORDER BY r.count DESCENDING '
         )
 

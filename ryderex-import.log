@@ -1,0 +1,624 @@
+18:56:45:INFO: Loading new data from databases...
+18:56:58:INFO: Loading new data from databases...
+18:57:57:INFO: Loading new data from databases...
+13:40:21:INFO: Loading new data from databases...
+14:15:33:INFO: Loading new data from databases...
+14:15:33:INFO: Loading new data from bbu
+14:15:33:INFO:     Loading data from https://bbu.world database...
+14:15:33:INFO:     Redacting emails and replacing with hashes...
+14:15:34:INFO:     Got 450 users
+14:15:34:INFO:     Got 14 groups
+14:15:34:INFO:     Got 9 categories
+14:15:34:INFO:     Got 23 tags.
+14:15:34:INFO:     Got 1368 topics and applied 1657 tags.
+14:15:34:INFO:     Got 4620 posts.
+14:15:34:INFO:     Got 1521 replies.
+14:15:34:INFO:     Got 977 quotes.
+14:15:34:INFO:     Got 2556 likes.
+14:15:34:INFO:     Got annotation languages: English.
+14:15:34:INFO:     Got 3193 codes with 3193 names.
+14:15:34:INFO:     Got 14813 annotations.
+14:15:35:INFO: Omitted private messages.
+14:15:35:INFO: Omitted protected content.
+14:15:35:INFO: Omitted system users and content.
+14:15:35:INFO: 
+14:15:35:INFO: Loading JSON data files to verify...
+14:15:35:INFO: 
+14:15:35:INFO: -------| bbu |-------
+14:15:35:INFO: 447 users
+14:15:35:INFO: 12 groups
+14:15:35:INFO: 23 tags.
+14:15:35:INFO: 4 tags.
+14:15:35:INFO: 642 topics and 944 PM threads.
+14:15:35:INFO: 1657 tag applications to topics.
+14:15:35:INFO: 1724 posts and 1440 private messages.
+14:15:35:INFO: 1521 posts are replies to other posts.
+14:15:35:INFO: 608 quotes.
+14:15:35:INFO: 831 likes.
+14:15:35:INFO: Private messages have been omitted.
+14:15:35:INFO: Protected content has been omitted.
+14:15:35:INFO: System users and their content has been omitted.
+14:15:35:INFO: Annotation languages: English.
+14:15:35:INFO: 3060 ethnographic codes with 3193 names.
+14:15:35:INFO: 13898 ethnographic annotations.
+14:15:35:INFO:  
+14:15:35:INFO:  
+14:15:35:INFO: Building Neo4j database...
+14:15:35:INFO:  
+14:15:57:INFO: Cleared database
+14:15:58:INFO: Loaded all platforms.
+14:15:58:INFO: Created group index
+14:16:01:INFO: Added all groups
+14:16:01:INFO: Created user index
+14:16:01:INFO: Created globaluser index
+14:16:03:INFO: Added all users
+14:16:03:INFO: Created tag index
+14:16:03:INFO: Added all tags
+14:16:03:INFO: Created category index
+14:16:04:INFO: Added all categories
+14:16:04:INFO: Created topic index
+14:16:05:INFO: Added all topics
+14:16:05:INFO: Created post index
+14:16:07:INFO: Added all posts
+14:16:07:INFO: Added all reply links
+14:16:07:INFO: Added all quote links
+14:16:07:INFO: Created user talk graph
+14:16:08:INFO: Created global user talk graph
+14:16:08:INFO: Created user quote graph
+14:16:08:INFO: Created global user quote graph
+14:16:08:INFO: Created user talk and quote graph
+14:16:08:INFO: Created global user talk and quote graph
+14:16:08:INFO: Added all user to user interaction links
+14:16:08:INFO: Added all like links
+14:16:08:INFO: Created language index
+14:16:08:INFO: Created code index
+14:16:18:INFO: Added corpus labels to graph
+14:16:19:INFO: Created annotation counts per corpus
+14:16:19:INFO: Created cooccurrence index
+14:16:38:INFO: Created cooccurance graph
+14:16:39:INFO: Created code use graph
+14:37:02:INFO: Loading new data from databases...
+14:37:02:INFO: Loading new data from bbu
+14:37:02:INFO:     Loading data from https://bbu.world database...
+14:37:02:INFO:     Redacting emails and replacing with hashes...
+14:37:03:INFO:     Got 450 users
+14:37:03:INFO:     Got 14 groups
+14:37:03:INFO:     Got 9 categories
+14:37:03:INFO:     Got 23 tags.
+14:37:03:INFO:     Got 1368 topics and applied 1657 tags.
+14:37:04:INFO:     Got 4620 posts.
+14:37:04:INFO:     Got 1521 replies.
+14:37:04:INFO:     Got 977 quotes.
+14:37:04:INFO:     Got 2556 likes.
+14:37:04:INFO:     Got annotation languages: English.
+14:37:04:INFO:     Got 3193 codes with 3193 names.
+14:37:04:INFO:     Got 14813 annotations.
+14:37:04:INFO: Omitted private messages.
+14:37:04:INFO: Omitted protected content.
+14:37:04:INFO: Omitted system users and content.
+14:37:04:INFO: Loading new data from edgeryders
+14:37:04:INFO:     Loading data from https://edgeryders.eu database...
+14:37:04:INFO:     Redacting emails and replacing with hashes...
+14:37:22:INFO:     Got 6903 users
+14:37:22:INFO:     Got 31 groups
+14:37:22:INFO:     Got 170 categories
+14:37:22:INFO:     Got 1564 tags.
+14:37:22:INFO:     Got 16129 topics and applied 24679 tags.
+14:37:25:INFO:     Got 101203 posts.
+14:37:25:INFO:     Got 46027 replies.
+14:37:25:INFO:     Got 8637 quotes.
+14:37:25:INFO:     Got 49530 likes.
+14:37:25:INFO:     Got annotation languages: English, German, Serbian, Polish, French, Italian, Czech.
+14:37:25:INFO:     Got 6121 codes with 8878 names.
+14:37:25:INFO:     Got 22356 annotations.
+14:37:26:INFO: Omitted private messages.
+14:37:26:INFO: Omitted system users and content.
+14:37:32:INFO: 
+14:37:32:INFO: Loading JSON data files to verify...
+14:37:32:INFO: 
+14:37:34:INFO: -------| bbu |-------
+14:37:34:INFO: 447 users
+14:37:34:INFO: 12 groups
+14:37:34:INFO: 23 tags.
+14:37:34:INFO: 4 tags.
+14:37:34:INFO: 642 topics and 944 PM threads.
+14:37:34:INFO: 1657 tag applications to topics.
+14:37:34:INFO: 1724 posts and 1440 private messages.
+14:37:34:INFO: 1521 posts are replies to other posts.
+14:37:34:INFO: 608 quotes.
+14:37:34:INFO: 831 likes.
+14:37:34:INFO: Private messages have been omitted.
+14:37:34:INFO: Protected content has been omitted.
+14:37:34:INFO: System users and their content has been omitted.
+14:37:34:INFO: Annotation languages: English.
+14:37:34:INFO: 3060 ethnographic codes with 3193 names.
+14:37:34:INFO: 13898 ethnographic annotations.
+14:37:34:INFO:  
+14:37:34:INFO: -------| edgeryders |-------
+14:37:34:INFO: 6900 users
+14:37:34:INFO: 31 groups
+14:37:34:INFO: 1564 tags.
+14:37:34:INFO: 170 tags.
+14:37:34:INFO: 11983 topics and 9509 PM threads.
+14:37:34:INFO: 24679 tag applications to topics.
+14:37:34:INFO: 83873 posts and 17330 private messages.
+14:37:34:INFO: 46027 posts are replies to other posts.
+14:37:34:INFO: 7047 quotes.
+14:37:34:INFO: 44857 likes.
+14:37:34:INFO: Private messages have been omitted.
+14:37:34:INFO: System users and their content has been omitted.
+14:37:34:INFO: Annotation languages: English, German, Serbian, Polish, French, Italian, Czech.
+14:37:34:INFO: 6121 ethnographic codes with 8878 names.
+14:37:34:INFO: 22316 ethnographic annotations.
+14:37:34:INFO:  
+14:37:34:INFO:  
+14:37:34:INFO: Building Neo4j database...
+14:37:34:INFO:  
+14:37:38:INFO: Cleared database
+14:37:38:INFO: Loaded all platforms.
+14:37:38:INFO: Created group index
+14:37:38:INFO: Added all groups
+14:37:38:INFO: Created user index
+14:37:38:INFO: Created globaluser index
+14:37:42:INFO: Added all users
+14:37:42:INFO: Created tag index
+14:37:42:INFO: Added all tags
+14:37:42:INFO: Created category index
+14:37:42:INFO: Added all categories
+14:37:42:INFO: Created topic index
+14:37:45:INFO: Added all topics
+14:37:45:INFO: Created post index
+14:38:08:INFO: Added all posts
+14:38:12:INFO: Added all reply links
+14:38:13:INFO: Added all quote links
+14:38:13:INFO: Created user talk graph
+14:38:14:INFO: Created global user talk graph
+14:38:14:INFO: Created user quote graph
+14:38:14:INFO: Created global user quote graph
+14:38:15:INFO: Created user talk and quote graph
+14:38:16:INFO: Created global user talk and quote graph
+14:38:16:INFO: Added all user to user interaction links
+14:38:19:INFO: Added all like links
+14:38:19:INFO: Created language index
+14:38:19:INFO: Created code index
+14:38:29:INFO: Added corpus labels to graph
+14:38:30:INFO: Created annotation counts per corpus
+14:38:30:INFO: Created cooccurrence index
+14:38:51:INFO: Created cooccurance graph
+14:38:52:INFO: Created code use graph
+13:49:04:INFO: 
+13:49:04:INFO: Loading JSON data files to verify...
+13:49:04:INFO: 
+13:49:06:INFO: -------| bbu |-------
+13:49:06:INFO: 447 users
+13:49:06:INFO: 12 groups
+13:49:06:INFO: 23 tags.
+13:49:06:INFO: 4 tags.
+13:49:06:INFO: 642 topics and 944 PM threads.
+13:49:06:INFO: 1657 tag applications to topics.
+13:49:06:INFO: 1724 posts and 1440 private messages.
+13:49:06:INFO: 1521 posts are replies to other posts.
+13:49:06:INFO: 608 quotes.
+13:49:06:INFO: 831 likes.
+13:49:06:INFO: Private messages have been omitted.
+13:49:06:INFO: Protected content has been omitted.
+13:49:06:INFO: System users and their content has been omitted.
+13:49:06:INFO: Annotation languages: English.
+13:49:06:INFO: 3060 ethnographic codes with 3193 names.
+13:49:06:INFO: 13898 ethnographic annotations.
+13:49:06:INFO:  
+13:49:06:INFO: -------| edgeryders |-------
+13:49:06:INFO: 6900 users
+13:49:06:INFO: 31 groups
+13:49:06:INFO: 1564 tags.
+13:49:06:INFO: 170 tags.
+13:49:06:INFO: 11983 topics and 9509 PM threads.
+13:49:06:INFO: 24679 tag applications to topics.
+13:49:06:INFO: 83873 posts and 17330 private messages.
+13:49:06:INFO: 46027 posts are replies to other posts.
+13:49:06:INFO: 7047 quotes.
+13:49:06:INFO: 44857 likes.
+13:49:06:INFO: Private messages have been omitted.
+13:49:06:INFO: System users and their content has been omitted.
+13:49:06:INFO: Annotation languages: English, German, Serbian, Polish, French, Italian, Czech.
+13:49:06:INFO: 6121 ethnographic codes with 8878 names.
+13:49:06:INFO: 22316 ethnographic annotations.
+13:49:06:INFO:  
+13:49:06:INFO:  
+13:49:06:INFO: Building Neo4j database...
+13:49:06:INFO:  
+13:49:44:INFO: Cleared database
+13:49:44:INFO: Loaded all platforms.
+13:49:44:INFO: Created group index
+13:49:44:INFO: Added all groups
+13:49:44:INFO: Created user index
+13:49:44:INFO: Created globaluser index
+13:49:49:INFO: Added all users
+13:49:49:INFO: Created tag index
+13:49:49:INFO: Added all tags
+13:49:49:INFO: Created category index
+13:49:49:INFO: Added all categories
+13:49:49:INFO: Created topic index
+13:49:52:INFO: Added all topics
+13:49:52:INFO: Created post index
+13:50:12:INFO: Added all posts
+13:50:15:INFO: Added all reply links
+13:50:16:INFO: Added all quote links
+13:50:17:INFO: Created user talk graph
+13:50:17:INFO: Created global user talk graph
+13:50:18:INFO: Created user quote graph
+13:50:18:INFO: Created global user quote graph
+13:50:19:INFO: Created user talk and quote graph
+13:50:19:INFO: Created global user talk and quote graph
+13:50:19:INFO: Added all user to user interaction links
+13:50:22:INFO: Added all like links
+13:50:22:INFO: Created language index
+13:50:23:INFO: Created code index
+13:50:31:INFO: Added corpus labels to graph
+13:50:32:INFO: Created annotation counts per corpus
+13:50:32:INFO: Created cooccurrence index
+13:50:58:INFO: Created cooccurance graph
+13:50:58:INFO: Created code use graph
+16:48:36:INFO: 
+16:48:36:INFO: Loading JSON data files to verify...
+16:48:36:INFO: 
+16:48:38:INFO: -------| bbu |-------
+16:48:38:INFO: 447 users
+16:48:38:INFO: 12 groups
+16:48:38:INFO: 23 tags.
+16:48:38:INFO: 4 tags.
+16:48:38:INFO: 642 topics and 944 PM threads.
+16:48:38:INFO: 1657 tag applications to topics.
+16:48:38:INFO: 1724 posts and 1440 private messages.
+16:48:38:INFO: 1521 posts are replies to other posts.
+16:48:38:INFO: 608 quotes.
+16:48:38:INFO: 831 likes.
+16:48:38:INFO: Private messages have been omitted.
+16:48:38:INFO: Protected content has been omitted.
+16:48:38:INFO: System users and their content has been omitted.
+16:48:38:INFO: Annotation languages: English.
+16:48:38:INFO: 3060 ethnographic codes with 3193 names.
+16:48:38:INFO: 13898 ethnographic annotations.
+16:48:38:INFO:  
+16:48:38:INFO: -------| edgeryders |-------
+16:48:38:INFO: 6900 users
+16:48:38:INFO: 31 groups
+16:48:38:INFO: 1564 tags.
+16:48:38:INFO: 170 tags.
+16:48:38:INFO: 11983 topics and 9509 PM threads.
+16:48:38:INFO: 24679 tag applications to topics.
+16:48:38:INFO: 83873 posts and 17330 private messages.
+16:48:38:INFO: 46027 posts are replies to other posts.
+16:48:38:INFO: 7047 quotes.
+16:48:38:INFO: 44857 likes.
+16:48:38:INFO: Private messages have been omitted.
+16:48:38:INFO: System users and their content has been omitted.
+16:48:38:INFO: Annotation languages: English, German, Serbian, Polish, French, Italian, Czech.
+16:48:38:INFO: 6121 ethnographic codes with 8878 names.
+16:48:38:INFO: 22316 ethnographic annotations.
+16:48:38:INFO:  
+16:48:38:INFO:  
+16:48:38:INFO: Building Neo4j database...
+16:48:38:INFO:  
+16:49:13:INFO: Cleared database
+16:49:13:INFO: Loaded all platforms.
+16:49:13:INFO: Created group index
+16:49:13:INFO: Added all groups
+16:49:13:INFO: Created user index
+16:49:13:INFO: Created globaluser index
+16:49:16:INFO: Added all users
+16:49:16:INFO: Created tag index
+16:49:16:INFO: Added all tags
+16:49:16:INFO: Created category index
+16:49:16:INFO: Added all categories
+16:49:16:INFO: Created topic index
+16:49:18:INFO: Added all topics
+16:49:18:INFO: Created post index
+16:49:42:INFO: Added all posts
+16:49:46:INFO: Added all reply links
+16:49:46:INFO: Added all quote links
+16:49:47:INFO: Created user talk graph
+16:49:49:INFO: Created global user talk graph
+16:49:49:INFO: Created user quote graph
+16:49:49:INFO: Created global user quote graph
+16:49:50:INFO: Created user talk and quote graph
+16:49:51:INFO: Created global user talk and quote graph
+16:49:51:INFO: Added all user to user interaction links
+16:49:54:INFO: Added all like links
+16:49:54:INFO: Created language index
+16:49:54:INFO: Created code index
+16:50:13:INFO: Added corpus labels to graph
+16:50:13:INFO: Created annotation counts per corpus
+16:50:13:INFO: Created cooccurrence index
+16:50:37:INFO: Created cooccurance graph
+16:50:38:INFO: Created code use graph
+16:52:13:INFO: 
+16:52:13:INFO: Loading JSON data files to verify...
+16:52:13:INFO: 
+16:52:15:INFO: -------| bbu |-------
+16:52:15:INFO: 447 users
+16:52:15:INFO: 12 groups
+16:52:15:INFO: 23 tags.
+16:52:15:INFO: 4 tags.
+16:52:15:INFO: 642 topics and 944 PM threads.
+16:52:15:INFO: 1657 tag applications to topics.
+16:52:15:INFO: 1724 posts and 1440 private messages.
+16:52:15:INFO: 1521 posts are replies to other posts.
+16:52:15:INFO: 608 quotes.
+16:52:15:INFO: 831 likes.
+16:52:15:INFO: Private messages have been omitted.
+16:52:15:INFO: Protected content has been omitted.
+16:52:15:INFO: System users and their content has been omitted.
+16:52:15:INFO: Annotation languages: English.
+16:52:15:INFO: 3060 ethnographic codes with 3193 names.
+16:52:15:INFO: 13898 ethnographic annotations.
+16:52:15:INFO:  
+16:52:15:INFO: -------| edgeryders |-------
+16:52:15:INFO: 6900 users
+16:52:15:INFO: 31 groups
+16:52:15:INFO: 1564 tags.
+16:52:15:INFO: 170 tags.
+16:52:15:INFO: 11983 topics and 9509 PM threads.
+16:52:15:INFO: 24679 tag applications to topics.
+16:52:15:INFO: 83873 posts and 17330 private messages.
+16:52:15:INFO: 46027 posts are replies to other posts.
+16:52:15:INFO: 7047 quotes.
+16:52:15:INFO: 44857 likes.
+16:52:15:INFO: Private messages have been omitted.
+16:52:15:INFO: System users and their content has been omitted.
+16:52:15:INFO: Annotation languages: English, German, Serbian, Polish, French, Italian, Czech.
+16:52:15:INFO: 6121 ethnographic codes with 8878 names.
+16:52:15:INFO: 22316 ethnographic annotations.
+16:52:15:INFO:  
+16:52:15:INFO:  
+16:52:15:INFO: Building Neo4j database...
+16:52:15:INFO:  
+16:52:33:INFO: Cleared database
+16:52:33:INFO: Loaded all platforms.
+16:52:33:INFO: Created group index
+16:52:33:INFO: Added all groups
+16:52:33:INFO: Created user index
+16:52:33:INFO: Created globaluser index
+16:52:36:INFO: Added all users
+16:52:36:INFO: Created tag index
+16:52:37:INFO: Added all tags
+16:52:37:INFO: Created category index
+16:52:37:INFO: Added all categories
+16:52:37:INFO: Created topic index
+16:52:39:INFO: Added all topics
+16:52:39:INFO: Created post index
+16:52:59:INFO: Added all posts
+16:53:03:INFO: Added all reply links
+16:53:04:INFO: Added all quote links
+16:53:05:INFO: Created user talk graph
+16:53:06:INFO: Created global user talk graph
+16:53:07:INFO: Created user quote graph
+16:53:08:INFO: Created global user quote graph
+16:53:09:INFO: Created user talk and quote graph
+16:53:11:INFO: Created global user talk and quote graph
+16:53:11:INFO: Added all user to user interaction links
+16:53:15:INFO: Added all like links
+16:53:15:INFO: Created language index
+16:53:15:INFO: Created code index
+16:53:25:INFO: Added corpus labels to graph
+16:53:26:INFO: Created annotation counts per corpus
+16:53:26:INFO: Created cooccurrence index
+16:53:49:INFO: Created cooccurance graph
+16:47:23:INFO: 
+16:47:23:INFO: Loading JSON data files to verify...
+16:47:23:INFO: 
+16:47:25:INFO: -------| bbu |-------
+16:47:25:INFO: 447 users
+16:47:25:INFO: 12 groups
+16:47:25:INFO: 23 tags.
+16:47:25:INFO: 4 tags.
+16:47:25:INFO: 642 topics and 944 PM threads.
+16:47:25:INFO: 1657 tag applications to topics.
+16:47:25:INFO: 1724 posts and 1440 private messages.
+16:47:25:INFO: 1521 posts are replies to other posts.
+16:47:25:INFO: 608 quotes.
+16:47:25:INFO: 831 likes.
+16:47:25:INFO: Private messages have been omitted.
+16:47:25:INFO: Protected content has been omitted.
+16:47:25:INFO: System users and their content has been omitted.
+16:47:25:INFO: Annotation languages: English.
+16:47:25:INFO: 3060 ethnographic codes with 3193 names.
+16:47:25:INFO: 13898 ethnographic annotations.
+16:47:25:INFO:  
+16:47:25:INFO: -------| edgeryders |-------
+16:47:25:INFO: 6900 users
+16:47:25:INFO: 31 groups
+16:47:25:INFO: 1564 tags.
+16:47:25:INFO: 170 tags.
+16:47:25:INFO: 11983 topics and 9509 PM threads.
+16:47:25:INFO: 24679 tag applications to topics.
+16:47:25:INFO: 83873 posts and 17330 private messages.
+16:47:25:INFO: 46027 posts are replies to other posts.
+16:47:25:INFO: 7047 quotes.
+16:47:25:INFO: 44857 likes.
+16:47:25:INFO: Private messages have been omitted.
+16:47:25:INFO: System users and their content has been omitted.
+16:47:25:INFO: Annotation languages: English, German, Serbian, Polish, French, Italian, Czech.
+16:47:25:INFO: 6121 ethnographic codes with 8878 names.
+16:47:25:INFO: 22316 ethnographic annotations.
+16:47:25:INFO:  
+16:47:25:INFO:  
+16:47:25:INFO: Building Neo4j database...
+16:47:25:INFO:  
+16:47:57:INFO: Cleared database
+16:47:57:INFO: Loaded all platforms.
+16:47:57:INFO: Created group index
+16:47:58:INFO: Added all groups
+16:47:58:INFO: Created user index
+16:47:58:INFO: Created globaluser index
+16:48:05:INFO: Added all users
+16:48:05:INFO: Created tag index
+16:48:05:INFO: Added all tags
+16:48:05:INFO: Created category index
+16:48:05:INFO: Added all categories
+16:48:05:INFO: Created topic index
+16:48:10:INFO: Added all topics
+16:48:10:INFO: Created post index
+16:48:42:INFO: Added all posts
+16:48:46:INFO: Added all reply links
+16:48:46:INFO: Added all quote links
+16:48:47:INFO: Created user talk graph
+16:48:48:INFO: Created global user talk graph
+16:48:48:INFO: Created user quote graph
+16:48:48:INFO: Created global user quote graph
+16:48:49:INFO: Created user talk and quote graph
+16:48:50:INFO: Created global user talk and quote graph
+16:48:50:INFO: Added all user to user interaction links
+16:48:53:INFO: Added all like links
+16:48:53:INFO: Created language index
+16:48:53:INFO: Created code index
+16:49:04:INFO: Added corpus labels to graph
+16:49:05:INFO: Created annotation counts per corpus
+16:49:05:INFO: Created cooccurrence index
+16:49:30:INFO: Created cooccurance graph
+16:52:08:INFO: 
+16:52:08:INFO: Loading JSON data files to verify...
+16:52:08:INFO: 
+16:52:11:INFO: -------| bbu |-------
+16:52:11:INFO: 447 users
+16:52:11:INFO: 12 groups
+16:52:11:INFO: 23 tags.
+16:52:11:INFO: 4 tags.
+16:52:11:INFO: 642 topics and 944 PM threads.
+16:52:11:INFO: 1657 tag applications to topics.
+16:52:11:INFO: 1724 posts and 1440 private messages.
+16:52:11:INFO: 1521 posts are replies to other posts.
+16:52:11:INFO: 608 quotes.
+16:52:11:INFO: 831 likes.
+16:52:11:INFO: Private messages have been omitted.
+16:52:11:INFO: Protected content has been omitted.
+16:52:11:INFO: System users and their content has been omitted.
+16:52:11:INFO: Annotation languages: English.
+16:52:11:INFO: 3060 ethnographic codes with 3193 names.
+16:52:11:INFO: 13898 ethnographic annotations.
+16:52:11:INFO:  
+16:52:11:INFO: -------| edgeryders |-------
+16:52:11:INFO: 6900 users
+16:52:11:INFO: 31 groups
+16:52:11:INFO: 1564 tags.
+16:52:11:INFO: 170 tags.
+16:52:11:INFO: 11983 topics and 9509 PM threads.
+16:52:11:INFO: 24679 tag applications to topics.
+16:52:11:INFO: 83873 posts and 17330 private messages.
+16:52:11:INFO: 46027 posts are replies to other posts.
+16:52:11:INFO: 7047 quotes.
+16:52:11:INFO: 44857 likes.
+16:52:11:INFO: Private messages have been omitted.
+16:52:11:INFO: System users and their content has been omitted.
+16:52:11:INFO: Annotation languages: English, German, Serbian, Polish, French, Italian, Czech.
+16:52:11:INFO: 6121 ethnographic codes with 8878 names.
+16:52:11:INFO: 22316 ethnographic annotations.
+16:52:11:INFO:  
+16:52:11:INFO:  
+16:52:11:INFO: Building Neo4j database...
+16:52:11:INFO:  
+16:52:32:INFO: Cleared database
+16:52:32:INFO: Loaded all platforms.
+16:52:32:INFO: Created group index
+16:52:32:INFO: Added all groups
+16:52:32:INFO: Created user index
+16:52:32:INFO: Created globaluser index
+16:52:35:INFO: Added all users
+16:52:35:INFO: Created tag index
+16:52:35:INFO: Added all tags
+16:52:35:INFO: Created category index
+16:52:36:INFO: Added all categories
+16:52:36:INFO: Created topic index
+16:52:38:INFO: Added all topics
+16:52:38:INFO: Created post index
+16:53:04:INFO: Added all posts
+16:53:08:INFO: Added all reply links
+16:53:08:INFO: Added all quote links
+16:53:09:INFO: Created user talk graph
+16:53:09:INFO: Created global user talk graph
+16:53:10:INFO: Created user quote graph
+16:53:10:INFO: Created global user quote graph
+16:53:11:INFO: Created user talk and quote graph
+16:53:11:INFO: Created global user talk and quote graph
+16:53:11:INFO: Added all user to user interaction links
+16:53:15:INFO: Added all like links
+16:53:15:INFO: Created language index
+16:53:15:INFO: Created code index
+16:53:26:INFO: Added corpus labels to graph
+16:53:27:INFO: Created annotation counts per corpus
+16:53:27:INFO: Created cooccurrence index
+16:53:52:INFO: Created cooccurance graph
+16:53:52:INFO: Created code use graph
+18:32:40:INFO: 
+18:32:40:INFO: Loading JSON data files to verify...
+18:32:40:INFO: 
+18:32:42:INFO: -------| bbu |-------
+18:32:42:INFO: 447 users
+18:32:42:INFO: 12 groups
+18:32:42:INFO: 23 tags.
+18:32:42:INFO: 4 tags.
+18:32:42:INFO: 642 topics and 944 PM threads.
+18:32:42:INFO: 1657 tag applications to topics.
+18:32:42:INFO: 1724 posts and 1440 private messages.
+18:32:42:INFO: 1521 posts are replies to other posts.
+18:32:42:INFO: 608 quotes.
+18:32:42:INFO: 831 likes.
+18:32:42:INFO: Private messages have been omitted.
+18:32:42:INFO: Protected content has been omitted.
+18:32:42:INFO: System users and their content has been omitted.
+18:32:42:INFO: Annotation languages: English.
+18:32:42:INFO: 3060 ethnographic codes with 3193 names.
+18:32:42:INFO: 13898 ethnographic annotations.
+18:32:42:INFO:  
+18:32:42:INFO: -------| edgeryders |-------
+18:32:42:INFO: 6900 users
+18:32:42:INFO: 31 groups
+18:32:42:INFO: 1564 tags.
+18:32:42:INFO: 170 tags.
+18:32:42:INFO: 11983 topics and 9509 PM threads.
+18:32:42:INFO: 24679 tag applications to topics.
+18:32:42:INFO: 83873 posts and 17330 private messages.
+18:32:42:INFO: 46027 posts are replies to other posts.
+18:32:42:INFO: 7047 quotes.
+18:32:42:INFO: 44857 likes.
+18:32:42:INFO: Private messages have been omitted.
+18:32:42:INFO: System users and their content has been omitted.
+18:32:42:INFO: Annotation languages: English, German, Serbian, Polish, French, Italian, Czech.
+18:32:42:INFO: 6121 ethnographic codes with 8878 names.
+18:32:42:INFO: 22316 ethnographic annotations.
+18:32:42:INFO:  
+18:32:42:INFO:  
+18:32:42:INFO: Building Neo4j database...
+18:32:42:INFO:  
+18:33:53:INFO: Cleared database
+18:33:54:INFO: Loaded all platforms.
+18:33:54:INFO: Created group index
+18:33:54:INFO: Added all groups
+18:33:54:INFO: Created user index
+18:33:54:INFO: Created globaluser index
+18:33:57:INFO: Added all users
+18:33:57:INFO: Created tag index
+18:33:57:INFO: Added all tags
+18:33:57:INFO: Created category index
+18:33:57:INFO: Added all categories
+18:33:57:INFO: Created topic index
+18:34:00:INFO: Added all topics
+18:34:00:INFO: Created post index
+18:34:31:INFO: Added all posts
+18:34:35:INFO: Added all reply links
+18:34:35:INFO: Added all quote links
+18:34:36:INFO: Created user talk graph
+18:34:36:INFO: Created global user talk graph
+18:34:37:INFO: Created user quote graph
+18:34:37:INFO: Created global user quote graph
+18:34:38:INFO: Created user talk and quote graph
+18:34:38:INFO: Created global user talk and quote graph
+18:34:38:INFO: Added all user to user interaction links
+18:34:41:INFO: Added all like links
+18:34:41:INFO: Created language index
+18:34:41:INFO: Created code index
+18:34:51:INFO: Added corpus labels to graph
+18:34:52:INFO: Created annotation counts per corpus
+18:34:58:INFO: Created cooccurrence index
+18:35:20:INFO: Created cooccurance graph
+18:35:20:INFO: Created code use graph
