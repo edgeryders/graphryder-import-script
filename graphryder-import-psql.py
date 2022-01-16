@@ -434,7 +434,7 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
     annotator_languages_query = f'''
     SELECT
     id, name, locale
-    FROM {db_root}annotator_store_languages
+    FROM {db_root}discourse_annotator_languages
     '''
 
     annotator_languages = {}
@@ -457,13 +457,13 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
     annotator_codes_query = f'''
     SELECT
     id, description, creator_id, created_at, updated_at, ancestry, annotations_count
-    FROM {db_root}annotator_store_tags
+    FROM {db_root}discourse_annotator_codes
     '''
 
     annotator_code_names_query = f'''
     SELECT
-    id, name, tag_id, language_id, created_at
-    FROM {db_root}annotator_store_tag_names
+    id, name, code_id, language_id, created_at
+    FROM {db_root}discourse_annotator_code_names
     '''
 
     annotator_codes = {}
@@ -489,7 +489,7 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
         annotator_code_names[nid] = {
             'id': nid,
             'name': name[1],
-            'tag_id': name[2],
+            'code_id': name[2],
             'language_id': name[3],
             'created_at':name[4]
         }
@@ -500,8 +500,8 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
 
     annotations_query = f'''
     SELECT
-    id, text, quote, created_at, updated_at, tag_id, post_id, creator_id, type, topic_id
-    FROM {db_root}annotator_store_annotations
+    id, text, quote, created_at, updated_at, code_id, post_id, creator_id, type, topic_id
+    FROM {db_root}discourse_annotator_annotations
     '''
 
     annotations = {}
@@ -522,7 +522,7 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
                 'quote': annotation[2], 
                 'created_at': annotation[3],
                 'updated_at': annotation[4], 
-                'tag_id': annotation[5],
+                'code_id': annotation[5],
                 'post_id': annotation[6], 
                 'creator_id': annotation[7], 
                 'type': annotation[8],
@@ -656,15 +656,15 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
         if omit_codes_prefix:
             for prefix in omit_codes_prefix:
                 if d['name'].startswith(prefix):
-                    omitted.add(d['tag_id'])
-                    if d['tag_id'] in annotator_codes.keys():
-                        del[annotator_codes[d['tag_id']]]
+                    omitted.add(d['code_id'])
+                    if d['code_id'] in annotator_codes.keys():
+                        del[annotator_codes[d['code_id']]]
                     del[new[a]]
                     continue
 
     new = dict(annotations)
     for a, d in annotations.items():
-        if d['tag_id'] in omitted:
+        if d['code_id'] in omitted:
             del(new[a])
             continue
         if omit_private_messages and d['post_id'] in pm_post_set:
@@ -1523,12 +1523,12 @@ def graph_create_code_names(data):
             f'YIELD value '
             f'CREATE (codename:codename {{discourse_id: value.id, platform: "{dataset}"}}) '
             f'SET codename.name = value.name '
-            f'SET codename.code_id = value.tag_id '
+            f'SET codename.code_id = value.code_id '
             f'SET codename.language_id = value.language_id '
             f'SET codename.created_at = value.created_at '
             f'WITH codename, value '
             f'MATCH (language:language {{discourse_id: value.language_id, platform: "{dataset}"}}) '
-            f'MATCH (code:code {{discourse_id: value.tag_id, platform: "{dataset}"}}) '
+            f'MATCH (code:code {{discourse_id: value.code_id, platform: "{dataset}"}}) '
             f'WITH codename, language, code '
             f'CREATE (codename)<-[:HAS_CODENAME]-(code) '
             f'CREATE (codename)-[:IN_LANGUAGE]->(language) '
@@ -1566,13 +1566,13 @@ def graph_create_annotations(data):
             f'SET annotation.quote = value.quote '
             f'SET annotation.created_at = value.created_at '
             f'SET annotation.updated_at = value.updated_at '
-            f'SET annotation.code_id = value.tag_id '
+            f'SET annotation.code_id = value.code_id '
             f'SET annotation.post_id = value.post_id '
             f'SET annotation.creator_id = value.creator_id '
             f'SET annotation.type = value.type '
             f'SET annotation.topic_id = value.topic_id '
             f'WITH annotation, value '
-            f'MATCH (code:code {{discourse_id: value.tag_id, platform: "{dataset}"}}) '
+            f'MATCH (code:code {{discourse_id: value.code_id, platform: "{dataset}"}}) '
             f'MATCH (post:post {{discourse_id: value.post_id, platform: "{dataset}"}}) '
             f'MATCH (user:user {{discourse_id: value.creator_id, platform: "{dataset}"}}) '
             f'WITH code, post, user, annotation '
