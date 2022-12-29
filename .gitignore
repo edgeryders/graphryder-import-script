@@ -1,3 +1,4 @@
-.config.json
+config.json
 db/
 ryderex-import.log
+.python-version

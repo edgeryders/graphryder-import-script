@@ -48,7 +48,7 @@ def dumpSplit(data_topic, data_set, data, stats):
     stats['chunk_sizes'][data_topic] = len(data_chunks)
     return stats
 
-def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_policy, pseudonymize_users, omit_codes_prefix):
+def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_policy, pseudonymize_users, omit_codes_prefix, omitted_projects):
     # This function gets the data we need from the Discourse psql database.
     # It assumes that the database is built from backup dumps. 
     # If running on the live database, 'backup' in the database names should be changed.
@@ -452,11 +452,37 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
 
     mylogs.info(f'    Got annotation languages:{language_list[:-1]}.') 
 
+    # Get annotator projects
+
+    annotator_projects_query = f'''
+    SELECT 
+    id, name, created_at, updated_at
+    FROM  {db_root}discourse_annotator_projects
+    '''
+
+    annotator_projects = {}
+    project_list = ''
+    db_cursor.execute(annotator_projects_query)
+    annotator_projects_data = db_cursor.fetchall()
+    for project in annotator_projects_data:
+        if not project[1] in omitted_projects:
+            print(project[1])
+            pid = project[0]
+            annotator_projects[pid] = {
+                'id': pid,
+                'name': project[1],
+                'created_at': project[2],
+                'updated_at':project[3]
+            }
+            project_list += f' {project[1]},'
+
+    mylogs.info(f'    Got {len(list(annotator_projects.keys()))} projects.')
+
     # Get annotator codes and code names
 
     annotator_codes_query = f'''
     SELECT
-    id, description, creator_id, created_at, updated_at, ancestry, annotations_count
+    id, description, creator_id, created_at, updated_at, ancestry, annotations_count, project_id
     FROM {db_root}discourse_annotator_codes
     '''
 
@@ -478,7 +504,8 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
             'created_at': code[3],
             'updated_at': code[4],
             'ancestry': code[5],
-            'annotations_count': code[6]
+            'annotations_count': code[6],
+            'project': code[7]
         }
 
     annotator_code_names = {}
@@ -699,6 +726,7 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
         'posts': len(posts.keys()),
         'messages': private_count,
         'annotator_languages': language_list[:-1],
+        'annotator_projects': project_list[:-1],
         'annotator-codes': len(list(annotator_codes.keys())),
         'annotator-code-names': len(list(annotator_code_names.keys())),
         'annotator-annotations': len(list(annotations.keys()))
@@ -717,6 +745,7 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
         'quotes': quotes,
         'likes': likes,
         'languages': annotator_languages,
+        'projects': annotator_projects,
         'codes': annotator_codes,
         'code_names': annotator_code_names,
         'annotations': annotations
@@ -762,7 +791,8 @@ def reload_data(dbs):
                     salt, db['ensure_consent'] == 'true', 
                     db['protected_topic_policy'], 
                     db['pseudonymize_users'] == 'true',
-                    db['omit_codes_prefix']
+                    db['omit_codes_prefix'],
+                    db['omitted_projects']
                     ) 
         data[db['name']] = d
         stats = d['stats']
@@ -782,6 +812,7 @@ def reload_data(dbs):
         stats = dumpSplit('quotes', db['name'], list(d['quotes'].values()), stats)
         stats = dumpSplit('likes', db['name'], list(d['likes'].values()), stats)
         stats = dumpSplit('languages', db['name'], list(d['languages'].values()), stats)
+        stats = dumpSplit('projects', db['name'], list(d['projects'].values()), stats)
         stats = dumpSplit('codes', db['name'], list(d['codes'].values()), stats)
         stats = dumpSplit('code_names', db['name'], list(d['code_names'].values()), stats)
         stats = dumpSplit('annotations', db['name'],list(d['annotations'].values()),  stats)
@@ -837,6 +868,7 @@ def load_data(dbs):
             mylogs.info('System users and their content has been omitted.')
 
         mylogs.info(f'Annotation languages:{d["stats"]["annotator_languages"]}.') 
+        mylogs.info(f'Annotation projects:{d["stats"]["annotator_projects"]}.')
         mylogs.info(f'{len(d["codes"])} ethnographic codes with {len(d["code_names"])} names.')
         mylogs.info(f'{len(d["annotations"])} ethnographic annotations.')
         mylogs.info(' ')
@@ -858,8 +890,8 @@ def graph_clear():
 
     with driver.session() as session:
         try:
-            session.write_transaction(tx_clear_neo4j)
-            session.write_transaction(tx_clear_fullTextIndexes)
+            session.execute_write(tx_clear_neo4j)
+            session.execute_write(tx_clear_fullTextIndexes)
             mylogs.info('Cleared database')
         except Exception as e:
             mylogs.error('Clearing database failed')
@@ -883,12 +915,12 @@ def graph_create_platform(data):
         )
 
     with driver.session() as session:
-        session.write_transaction(tx_create_platform_index)
+        session.execute_write(tx_create_platform_index)
 
     for platform in data.values():
         with driver.session() as session:
             try:
-                session.write_transaction(tx_create_platform, platform['site']['name'])
+                session.execute_write(tx_create_platform, platform['site']['name'])
                 mylogs.debug(f'Loaded platform data from {platform["site"]["name"]}')
             except Exception as e:
                 mylogs.error(f'Import failed for platform data on {platform["site"]["name"]}')
@@ -919,7 +951,7 @@ def graph_create_groups(data):
         )
 
     with driver.session() as session:
-        session.write_transaction(tx_create_group_index)
+        session.execute_write(tx_create_group_index)
         mylogs.info('Created group index')
 
     for platform in data.values():
@@ -929,7 +961,7 @@ def graph_create_groups(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_groups, str(chunk), platform_name)
+                    session.execute_write(tx_create_groups, str(chunk), platform_name)
                     mylogs.debug(f'Loaded group data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for groups on {platform_name}, chunk #{chunk}')
@@ -985,11 +1017,11 @@ def graph_create_users(data):
         )
 
     with driver.session() as session:
-        session.write_transaction(tx_create_user_index)
+        session.execute_write(tx_create_user_index)
         mylogs.info('Created user index')
 
     with driver.session() as session:
-        session.write_transaction(tx_create_globaluser_index)
+        session.execute_write(tx_create_globaluser_index)
         mylogs.info('Created globaluser index')
 
     for platform in data.values():
@@ -999,7 +1031,7 @@ def graph_create_users(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_users, chunk, platform_name)
+                    session.execute_write(tx_create_users, chunk, platform_name)
                     mylogs.debug(f'Loaded user data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for users on {platform_name}, chunk #{chunk}')
@@ -1033,7 +1065,7 @@ def graph_create_tags(data):
         )
 
     with driver.session() as session:
-        session.write_transaction(tx_create_tag_index)
+        session.execute_write(tx_create_tag_index)
         mylogs.info('Created tag index')
 
     for platform in data.values():
@@ -1043,7 +1075,7 @@ def graph_create_tags(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_tags, chunk, platform_name)
+                    session.execute_write(tx_create_tags, chunk, platform_name)
                     mylogs.debug(f'Loaded tag data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for tag on {platform_name}, chunk #{chunk}')
@@ -1090,7 +1122,7 @@ def graph_create_categories(data):
         )
 
     with driver.session() as session:
-        session.write_transaction(tx_create_category_index)
+        session.execute_write(tx_create_category_index)
         mylogs.info('Created category index')
 
     for platform in data.values():
@@ -1100,7 +1132,7 @@ def graph_create_categories(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_categories, chunk, platform_name)
+                    session.execute_write(tx_create_categories, chunk, platform_name)
                     mylogs.debug(f'Loaded category data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for categories on {platform_name}, chunk #{chunk}')
@@ -1146,7 +1178,7 @@ def graph_create_topics(data):
         )
 
     with driver.session() as session:
-        session.write_transaction(tx_create_topic_index)
+        session.execute_write(tx_create_topic_index)
         mylogs.info('Created topic index')
 
     for platform in data.values():
@@ -1156,7 +1188,7 @@ def graph_create_topics(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_topics, chunk, platform_name)
+                    session.execute_write(tx_create_topics, chunk, platform_name)
                     mylogs.debug(f'Loaded topic data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for topic on {platform_name}, chunk #{chunk}')
@@ -1212,7 +1244,7 @@ def graph_create_posts(data):
 
     with driver.session() as session:
         try:
-            session.write_transaction(tx_create_post_index)
+            session.execute_write(tx_create_post_index)
             mylogs.info('Created post index')
         except Exception as e:
             mylogs.error(f'Creating post index failed')
@@ -1225,7 +1257,7 @@ def graph_create_posts(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_posts, chunk, platform_name)
+                    session.execute_write(tx_create_posts, chunk, platform_name)
                     mylogs.debug(f'Loaded post data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for posts on {platform_name}, chunk #{chunk}')
@@ -1252,7 +1284,7 @@ def graph_create_replies(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_replies, chunk, platform_name)
+                    session.execute_write(tx_create_replies, chunk, platform_name)
                     mylogs.debug(f'Loaded reply data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.info(f'Import failed for replies on {platform_name}, chunk #{chunk}')
@@ -1279,7 +1311,7 @@ def graph_create_quotes(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_quotes, chunk, platform_name)
+                    session.execute_write(tx_create_quotes, chunk, platform_name)
                     mylogs.debug(f'Loaded quote data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import quote for reply on {platform_name}, chunk #{chunk}')
@@ -1340,37 +1372,37 @@ def graph_create_interactions():
 
     with driver.session() as session:
         try:
-            session.write_transaction(tx_create_user_talks)
+            session.execute_write(tx_create_user_talks)
             mylogs.info('Created user talk graph')
         except Exception as e:
             mylogs.error('Creating user talk graph failed.')
             mylogs.error(e)
         try:
-            session.write_transaction(tx_create_global_user_talks)
+            session.execute_write(tx_create_global_user_talks)
             mylogs.info('Created global user talk graph')
         except Exception as e:
             mylogs.error('Creating global user talk graph failed.')
             mylogs.error(e)
         try:
-            session.write_transaction(tx_create_user_quotes)
+            session.execute_write(tx_create_user_quotes)
             mylogs.info('Created user quote graph')
         except Exception as e:
             mylogs.error('Creating user quote graph failed.')
             mylogs.error(e)
         try:
-            session.write_transaction(tx_create_global_user_quotes)
+            session.execute_write(tx_create_global_user_quotes)
             mylogs.info('Created global user quote graph')
         except Exception as e:
             mylogs.error('Creating global user quote graph failed.')
             mylogs.error(e)
         try:
-            session.write_transaction(tx_create_user_talks_and_quotes)
+            session.execute_write(tx_create_user_talks_and_quotes)
             mylogs.info('Created user talk and quote graph')
         except Exception as e:
             mylogs.error('Creating user talk and quote graph failed.')
             mylogs.error(e)
         try:
-            session.write_transaction(tx_create_global_user_talks_and_quotes)
+            session.execute_write(tx_create_global_user_talks_and_quotes)
             mylogs.info('Created global user talk and quote graph')
         except Exception as e:
             mylogs.error('Creating global user talk and quote graph failed.')
@@ -1397,7 +1429,7 @@ def graph_create_likes(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_likes, chunk, platform_name)
+                    session.execute_write(tx_create_likes, chunk, platform_name)
                     mylogs.debug(f'Loaded likes data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import likes for reply on {platform_name}, chunk #{chunk}')
@@ -1408,7 +1440,7 @@ def graph_create_likes(data):
 def graph_create_languages(data):
     # Add annotation languages
 
-    def tx_create_create_languages(tx, chunk, dataset):
+    def tx_create_languages(tx, chunk, dataset):
         tx.run(
             f'CALL apoc.load.json("file://{data_path}/{dataset}_languages_{chunk}.json") '
             f'YIELD value '
@@ -1429,7 +1461,7 @@ def graph_create_languages(data):
         )
 
     with driver.session() as session:
-        session.write_transaction(tx_create_language_index)
+        session.execute_write(tx_create_language_index)
         mylogs.info('Created language index')
 
     for platform in data.values():
@@ -1439,10 +1471,49 @@ def graph_create_languages(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_create_languages, chunk, platform_name)
+                    session.execute_write(tx_create_languages, chunk, platform_name)
                     mylogs.debug(f'Loaded language data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import for language on {platform_name}, chunk #{chunk}')
+                    mylogs.error(e)
+
+def graph_create_projects(data):
+    # Add annotation projects
+
+    def tx_create_projects(tx, chunk, dataset):
+        tx.run(
+            f'CALL apoc.load.json("file://{data_path}/{dataset}_projects_{chunk}.json") '
+            f'YIELD value '
+            f'CREATE (proj:project {{discourse_id: value.id, platform: "{dataset}"}}) '
+            f'SET proj.name = value.name '
+            f'WITH proj, value '
+            f'MATCH (p:platform {{name: "{dataset}"}}) '
+            f'WITH proj, p, value '
+            f'MERGE (p)<-[:ON_PLATFORM]-(proj) '
+        )
+
+    def tx_create_project_index(tx):
+        tx.run(
+            f'CREATE INDEX projects IF NOT EXISTS '
+            f'FOR (proj:project) '
+            f'ON (proj.discourse_id, proj.platform) '
+        )
+    
+    with driver.session() as session:
+        session.execute_write(tx_create_project_index)
+        mylogs.info('Created project index')
+    
+    for platform in data.values():
+        with driver.session() as session:
+            platform_name = platform['site']['name']
+            topic = 'languages'
+            chunks = platform['stats']['chunk_sizes'][topic]
+            for chunk in range(1, chunks + 1):
+                try:
+                    session.execute_write(tx_create_projects, chunk, platform_name)
+                    mylogs.debug(f'Loaded project data from {platform_name}, chunk #{chunk}')
+                except Exception as e:
+                    mylogs.error(f'Import error for project on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
 
 def graph_create_codes(data):
@@ -1460,10 +1531,15 @@ def graph_create_codes(data):
             f'SET code.updated_at = value.updated_at '
             f'SET code.ancestry = value.ancestry '
             f'SET code.annotations_count = value.annotations_count '
+            f'SET code.project = value.project '
             f'WITH code, value '
             f'MATCH (p:platform {{name: "{dataset}"}}) '
             f'WITH code, p, value '
             f'CREATE (p)<-[:ON_PLATFORM]-(code) '
+            f'WITH code, value '
+            f'MATCH (proj:project {{discourse_id: value.project}}) '
+            f'WITH proj, code, value '
+            f'CREATE (proj)<-[:IN_PROJECT {{annotation_count: code.annotations_count}}]-(code) '
             f'WITH code, value '
             f'MATCH (u:user {{discourse_id: value.creator_id, platform: "{dataset}"}}) '
             f'CREATE (u)-[:CREATED]->(code)'
@@ -1477,7 +1553,7 @@ def graph_create_codes(data):
         )
 
     with driver.session() as session:
-        session.write_transaction(tx_create_code_index)
+        session.execute_write(tx_create_code_index)
         mylogs.info('Created code index')
 
     for platform in data.values():
@@ -1487,7 +1563,7 @@ def graph_create_codes(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_codes, chunk, platform_name)
+                    session.execute_write(tx_create_codes, chunk, platform_name)
                     mylogs.debug(f'Loaded code data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import for codes on {platform_name}, chunk #{chunk}')
@@ -1508,7 +1584,7 @@ def graph_create_code_ancestry(data):
         with driver.session() as session:
             platform_name = platform['site']['name']
             try:
-                session.write_transaction(tx_create_code_ancestry, platform_name)
+                session.execute_write(tx_create_code_ancestry, platform_name)
                 mylogs.debug(f'Loaded code ancestry from {platform_name}')
             except Exception as e:
                 mylogs.error(f'Import failed for code ancestry on {platform_name}')
@@ -1548,7 +1624,7 @@ def graph_create_code_names(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_code_names, chunk, platform_name)
+                    session.execute_write(tx_create_code_names, chunk, platform_name)
                     mylogs.debug(f'Loaded code name data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import for code name on {platform_name}, chunk #{chunk}')
@@ -1589,61 +1665,11 @@ def graph_create_annotations(data):
             chunks = platform['stats']['chunk_sizes'][topic]
             for chunk in range(1, chunks + 1):
                 try:
-                    session.write_transaction(tx_create_annotations, chunk, platform_name)
+                    session.execute_write(tx_create_annotations, chunk, platform_name)
                     mylogs.debug(f'Loaded annotations data from {platform_name}, chunk #{chunk}')
                 except Exception as e:
                     mylogs.error(f'Import failed for annotations on {platform_name}, chunk #{chunk}')
                     mylogs.error(e)
-
-def graph_create_corpus():
-    # Define ethno-tags as corpus identifiers
-    # This function expects corpus identifiers to be unique across platforms
-
-    def tx_create_corpus(tx):
-        tx.run(
-            f'MATCH (t:tag) WHERE t.name STARTS WITH "ethno-" '
-            f'SET t:corpus '
-            f'WITH t '
-            f'MATCH (t)<-[:TAGGED_WITH]-()<-[:IN_TOPIC]-(p:post)<-[:ANNOTATES]-()-[:REFERS_TO]->(code:code) '
-            f'WITH code, t '
-            f'MERGE (code)-[:IN_CORPUS]->(t)'
-        )
-
-    def tx_get_corpora(tx):
-        result = tx.run('MATCH (c:corpus) RETURN c.name AS name')
-        corpora = []
-        for corpus in result:
-            corpora.append(corpus['name'])
-        return corpora
-
-    def tx_create_corpus_annotation_counts(tx, corpus):
-        annotations_variable_prop = corpus.replace('-','_')
-        tx.run(
-            f'MATCH (corpus:corpus {{name: "{corpus}"}})<-[:TAGGED_WITH]-(t:topic)<-[:IN_TOPIC]-(p:post)<-[:ANNOTATES]-(a:annotation)-[:REFERS_TO]->(code:code) '
-            f'WITH code, corpus, count(a) AS corpus_code_use '
-            f'MATCH (code)-[r:IN_CORPUS]->(corpus) '
-            f'SET r.annotation_count = corpus_code_use '
-        )
-
-    with driver.session() as session:
-        try:
-            session.write_transaction(tx_create_corpus)
-            mylogs.info('Added corpus labels to graph')
-        except Exception as e:
-            mylogs.error('Adding corpus labels to graph failed.')
-            mylogs.error(e)
-
-    corpora = []
-    with driver.session() as session:
-        try:
-            corpora = session.read_transaction(tx_get_corpora)
-            if corpora:
-                for corpus in corpora:
-                    session.write_transaction(tx_create_corpus_annotation_counts, corpus)
-                mylogs.info('Created annotation counts per corpus')
-        except Exception as e:
-            mylogs.error('Getting corpora failed.')
-            mylogs.error(e)
 
 def graph_create_code_cooccurrences():
     # Create code cooccurance network between codes
@@ -1655,20 +1681,23 @@ def graph_create_code_cooccurrences():
 
     def tx_create_code_cooccurrences(tx):
         tx.run(
-            f'MATCH (corpus:corpus)<-[:TAGGED_WITH]-()<-[:IN_TOPIC]-(p:post)<-[:ANNOTATES]-()-[:REFERS_TO]->(code1:code)-[:HAS_CODENAME]->(cn1:codename)-[:IN_LANGUAGE]->(l:language {{locale: "en"}}) '
-            f'MATCH (corpus:corpus)<-[:TAGGED_WITH]-()<-[:IN_TOPIC]-(p:post)<-[:ANNOTATES]-()-[:REFERS_TO]->(code2:code)-[:HAS_CODENAME]->(cn2:codename)-[:IN_LANGUAGE]->(l:language {{locale: "en"}}) WHERE NOT ID(code1) = ID(code2) '
-            f'WITH code1, code2, cn1, cn2, corpus, count(DISTINCT p) AS cooccurs '
-            f'MERGE (code1)-[r:COOCCURS {{method: "count", count: cooccurs, corpus: corpus.name}}]-(code2) '
-            f'RETURN corpus.name, cn1.name, cn2.name, r.count ORDER BY r.count DESCENDING '
+            f'MATCH (project:project)<-[:IN_PROJECT]-(code1:code)-[:HAS_CODENAME]->(cn1:codename)-[:IN_LANGUAGE]->(l:language {{locale: "en"}}) '
+            f'WITH project, code1, cn1 '
+            f'MATCH (code1)<-[:REFERS_TO]-()-[:ANNOTATES]->(p:post)<-[:ANNOTATES]-()-[:REFERS_TO]->(code2)-[:IN_PROJECT]->(project) WHERE NOT ID(code1) = ID(code2) '
+            f'WITH project, code1, code2, cn1, p '
+            f'MATCH (code2)-[:HAS_CODENAME]->(cn2:codename)-[:IN_LANGUAGE]->(l:language {{locale: "en"}}) '
+            f'WITH project, code1, code2, cn1, cn2, count(DISTINCT p) AS cooccurs  '
+            f'MERGE (code1)-[r:COOCCURS {{method: "count", count: cooccurs, project: project.name}}]-(code2) '
+            f'RETURN project.name, cn1.name, cn2.name, r.count ORDER BY r.count DESCENDING '
         )
 
     with driver.session() as session:
-        session.write_transaction(tx_create_cooccurrence_index)
+        session.execute_write(tx_create_cooccurrence_index)
         mylogs.info('Created cooccurrence index')
 
     with driver.session() as session:
         try:
-            session.write_transaction(tx_create_code_cooccurrences)
+            session.execute_write(tx_create_code_cooccurrences)
             mylogs.info('Created cooccurance graph')
         except Exception as e:
             mylogs.error('Creating cooccurance graph failed.')
@@ -1686,7 +1715,7 @@ def graph_create_code_use():
 
     with driver.session() as session:
         try:
-            session.write_transaction(tx_create_code_use)
+            session.execute_write(tx_create_code_use)
             mylogs.info('Created code use graph')
         except Exception as e:
             mylogs.error('Creating code use graph failed.')
@@ -1714,27 +1743,28 @@ def main():
     mylogs.info('Building Neo4j database...')
     mylogs.info(' ')
 
+
     # Calls to update graph 
     graph_clear()
     graph_create_platform(data)
     graph_create_groups(data)
     graph_create_users(data)
-    graph_create_tags(data)
-    graph_create_categories(data)
+    # graph_create_tags(data)
+    # graph_create_categories(data)
     graph_create_topics(data)
     graph_create_posts(data)
     graph_create_replies(data)
-    graph_create_quotes(data)
-    graph_create_interactions()
-    graph_create_likes(data)
+    # graph_create_quotes(data)
+    # graph_create_interactions()
+    # graph_create_likes(data)
     graph_create_languages(data)
+    graph_create_projects(data)
     graph_create_codes(data)
-    graph_create_code_ancestry(data)
+    # graph_create_code_ancestry(data)
     graph_create_code_names(data)
     graph_create_annotations(data)
-    graph_create_corpus()
     graph_create_code_cooccurrences()
-    graph_create_code_use()
+    # graph_create_code_use() 
 
 if __name__ == '__main__':
     main()
