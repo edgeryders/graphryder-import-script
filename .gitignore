@@ -1,4 +1,7 @@
 config.json
 db/
 ryderex-import.log
-.python-version
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]

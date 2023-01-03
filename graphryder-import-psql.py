@@ -5,7 +5,6 @@ import hashlib
 import random
 import os
 from neo4j import GraphDatabase
-import numpy as np
 from gibberish import Gibberish
 
 # Python version 3.8.6
@@ -466,7 +465,6 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
     annotator_projects_data = db_cursor.fetchall()
     for project in annotator_projects_data:
         if not project[1] in omitted_projects:
-            print(project[1])
             pid = project[0]
             annotator_projects[pid] = {
                 'id': pid,
@@ -562,10 +560,8 @@ def get_data(db_cursor, db_name, db_root, salt, ensure_consent, protected_topic_
     # We accept the redundancy and inefficency of looping through the data
     # and removing records as this makes the code less complicated
     # and makes it easier to add new rules later for how and when to omit data
-    # TODO: Move these bools to a config file
     
     omit_private_messages = True
-    # Omit private messages from the graph
 
     if protected_topic_policy == 'omit':
         omit_protected_content = True
