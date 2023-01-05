@@ -16,7 +16,11 @@
             "port": "5432",
             "dbname": "discourse_production_database_1",
             "user": "sqluser",
-            "password": "sqlpassword"
+            "password": "sqlpassword",
+            "omitted_projects": [
+                "z--orphaned-annotations",
+                "ethno-tag"
+            ]
         },
         {
             "name": "discourse_2",
@@ -29,7 +33,8 @@
             "port": "5432",
             "dbname": "discourse_production_database_1",
             "user": "sqluser",
-            "password": "sqlpassword"
+            "password": "sqlpassword",
+            "omitted_projects": []
         },
         {
             "name": "discourse_3",
@@ -42,6 +47,7 @@
             "port": "5432",
             "dbname": "discourse_database_1",
             "user": "sqluser",
-            "password": "sqlpassword"
+            "password": "sqlpassword",
+            "omitted_projects": []
         }]
 }
