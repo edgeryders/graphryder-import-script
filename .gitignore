@@ -1,7 +1,7 @@
 .DS_Store
 config.json
 db/
-ryderex-import.log
+graphryder-import.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
